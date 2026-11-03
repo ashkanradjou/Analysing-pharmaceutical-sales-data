@@ -24,10 +24,10 @@ The dataset originates from the POS system of a single pharmacy and contains rou
 |---|---|
 | M01AB | Anti-inflammatory/antirheumatic, non-steroid (acetic acid derivatives) |
 | M01AE | Anti-inflammatory/antirheumatic, non-steroid (propionic acid derivatives) |
-| N02BA | Analgesics/antipyretics — salicylic acid derivatives |
-| N02BE | Analgesics/antipyretics — pyrazolones and anilides |
-| N05B | Psycholeptics — anxiolytics |
-| N05C | Psycholeptics — hypnotics and sedatives |
+| N02BA | Analgesics/antipyretics - salicylic acid derivatives |
+| N02BE | Analgesics/antipyretics - pyrazolones and anilides |
+| N05B | Psycholeptics - anxiolytics |
+| N05C | Psycholeptics - hypnotics and sedatives |
 | R03 | Drugs for obstructive airway diseases |
 | R06 | Antihistamines for systemic use |
 
@@ -35,31 +35,31 @@ Data was pre-cleaned (outlier treatment, missing-value imputation) and resampled
 
 ## Project Structure
 
-1. Exploratory Data Analysis — sales distribution, seasonal patterns, and correlations
-2. Feature engineering — cyclical encoding of seasonality for regression
-3. Forecasting — Linear Regression vs. Holt-Winters Exponential Smoothing on 2019
-4. Model comparison — single train/test split
-5. Backtesting — 3-fold rolling validation (2017 / 2018 / 2019) for both models
-6. Final forecast — 2020 sales projection using Linear Regression
+1. Exploratory Data Analysis - sales distribution, seasonal patterns, and correlations
+2. Feature engineering - cyclical encoding of seasonality for regression
+3. Forecasting - Linear Regression vs. Holt-Winters Exponential Smoothing on 2019
+4. Model comparison - single train/test split
+5. Backtesting - 3-fold rolling validation (2017 / 2018 / 2019) for both models
+6. Final forecast - 2020 sales projection using Linear Regression
 
 ## Exploratory Data Analysis
 
-**Overall sales volume (2014–2019).** N02BE (63,005 units) is by far the highest-volume category — roughly 50x higher than the lowest, N05C (1,250 units). N05B (18,646) and R03 (11,609) follow at a distant second and third, indicating N02BE dominates overall pharmacy sales.
+**Overall sales volume (2014–2019).** N02BE (63,005 units) is by far the highest-volume category - roughly 50x higher than the lowest, N05C (1,250 units). N05B (18,646) and R03 (11,609) follow at a distant second and third, indicating N02BE dominates overall pharmacy sales.
 
 **Top sellers by period.** N02BE and N05B consistently rank first and second across three sampled months (Jan 2015, Jul 2016, Sep 2017), showing stable demand independent of season. The third-place spot varies seasonally: R03 (a respiratory drug) appears in colder months (Jan, Sep) but is displaced by M01AB in the summer month (Jul), consistent with lower respiratory-illness incidence in warm weather.
 
-**Weekday pattern.** N02BE is also the top seller on Mondays in 2017, but the ranking order matches the overall 2014–2019 ranking almost exactly — suggesting weekday has little independent effect on drug-level demand; N02BE's dominance is a stable, category-level trait rather than a day-of-week effect.
+**Weekday pattern.** N02BE is also the top seller on Mondays in 2017, but the ranking order matches the overall 2014–2019 ranking almost exactly - suggesting weekday has little independent effect on drug-level demand; N02BE's dominance is a stable, category-level trait rather than a day-of-week effect.
 
 **Seasonality (heatmap).** R03 sales decrease in Q3 (summer) and rise in Q4 (winter), consistent with respiratory illness seasonality. N02BE also rises in Q4 and partially in Q1, likely tracking cold/flu-related pain and fever. This recurring yearly pattern directly motivates the cyclical (`sin`/`cos`) seasonal features used in the regression model.
 
-**Correlation between drug categories.** The strongest pairwise correlation is N02BE–R03 (0.62), followed by M01AE–N02BE (0.62) — both moderate, likely reflecting shared winter-season demand or co-prescription for pain/inflammation. All other pairs show weaker correlation, indicating most drug categories behave largely independently of one another.
+**Correlation between drug categories.** The strongest pairwise correlation is N02BE–R03 (0.62), followed by M01AE–N02BE (0.62) - both moderate, likely reflecting shared winter-season demand or co-prescription for pain/inflammation. All other pairs show weaker correlation, indicating most drug categories behave largely independently of one another.
 
 ## Forecasting Methodology
 
 Monthly sales are modeled per drug category using:
 
-- **`time_index`** — a linear month counter capturing long-term trend
-- **`month_sin`, `month_cos`** — cyclical encoding of month-of-year, capturing seasonality without artificially treating December and January as "far apart"
+- **`time_index`** - a linear month counter capturing long-term trend
+- **`month_sin`, `month_cos`** - cyclical encoding of month-of-year, capturing seasonality without artificially treating December and January as "far apart"
 
 Two models were trained per drug and compared:
 
@@ -87,7 +87,7 @@ To avoid drawing conclusions from a single train/test split, both models were re
 | 2 | 2014–2017 | 2018 |
 | 3 | 2014–2018 | 2019 |
 
-**Result: Linear Regression had a lower mean RMSE than Holt-Winters on all 8 drugs, across all 3 folds** — a considerably stronger result than the single-split comparison, since it rules out the possibility that 2019 was simply a favorable year for one model.
+**Result: Linear Regression had a lower mean RMSE than Holt-Winters on all 8 drugs, across all 3 folds** - a considerably stronger result than the single-split comparison, since it rules out the possibility that 2019 was simply a favorable year for one model.
 
 | Medicine_ATC | Mean RMSE (LR) | Mean RMSE (HW) | Std RMSE (LR) | Std RMSE (HW) |
 |---|---|---|---|---|
@@ -121,14 +121,14 @@ Since the dataset does not include 2020 data, a pure Linear Regression was refit
 | N02BA | -0.928 | Decreasing |
 | N05B | -1.376 | Decreasing |
 
-Notably, N02BE — the highest-volume drug overall — is forecast to slightly decline, while N05B, the second-highest-volume drug, shows the steepest projected decline of all eight categories.
+Notably, N02BE - the highest-volume drug overall is forecast to slightly decline, while N05B, the second-highest-volume drug, shows the steepest projected decline of all eight categories.
 
-**Important caveat:** this forecast is a linear extrapolation of 2014–2019 trends only. It does not — and cannot — account for the COVID-19 pandemic, which began in early 2020 and materially disrupted demand for respiratory drugs (R03) and antihistamines (R06) in ways no model trained purely on pre-2020 data could anticipate.
+**Important caveat:** this forecast is a linear extrapolation of 2014–2019 trends only. It does not and cannot account for the COVID-19 pandemic, which began in early 2020 and materially disrupted demand for respiratory drugs (R03) and antihistamines (R06) in ways no model trained purely on pre-2020 data could anticipate.
 
 ## Key Takeaways
 
 - N02BE is the dominant drug category by volume, but also the hardest to forecast accurately for both models tested.
-- Seasonality is real and predictable for respiratory-related drugs (R03) and, to a lesser extent, general analgesics (N02BE) — both peak in winter.
+- Seasonality is real and predictable for respiratory-related drugs (R03) and, to a lesser extent, general analgesics (N02BE) both peak in winter.
 - A simple Linear Regression with hand-engineered cyclical features outperformed Holt-Winters consistently across drugs and time periods, likely because Holt-Winters needs more data than was available (max. 6 years / 72 months) to reliably estimate trend and seasonal components.
 - Single train/test evaluations can be misleading; backtesting across multiple folds materially strengthened (and in this case, confirmed) the model selection conclusion.
 
